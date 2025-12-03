@@ -1,322 +1,51 @@
 #!/bin/bash
-# Лабораторная работа №6. Управляющие конструкции командного интерпретатора
-# Универсальный скрипт-демонстратор
 
-set -e  # Завершать скрипт при ошибках
+# Скрипт для подсчета четных и нечетных чисел
+# Использование: ./script.sh число1 число2 число3 ...
 
-# ==================== ФУНКЦИИ ДЛЯ РАЗНЫХ ЗАДАЧ ====================
+# Проверка на наличие аргументов
+if [ $# -eq 0 ]; then
+    echo "Ошибка: Не переданы числа для анализа"
+    echo "Использование: $0 число1 число2 число3 ..."
+    exit 1
+fi
 
-# 1. Работа с переменными и аргументами
-demo_variables() {
-    echo "=== 1. Демонстрация переменных и аргументов ==="
-    echo "Имя скрипта: $0"
-    echo "Количество аргументов: $#"
-    echo "Все аргументы: $@"
-    echo "Первый аргумент: ${1:-не указан}"
-    echo "Текущая директория: $(pwd)"
-    echo "Пользователь: $(whoami)"
-    echo "Язык системы: $LANG"
-    echo ""
-}
+# Инициализация счетчиков
+even_count=0  # счетчик четных чисел
+odd_count=0   # счетчик нечетных чисел
 
-# 2. Арифметические операции
-demo_arithmetic() {
-    echo "=== 2. Арифметические операции ==="
-    read -p "Введите первое число: " num1
-    read -p "Введите второе число: " num2
-    
-    sum=$((num1 + num2))
-    diff=$((num1 - num2))
-    prod=$((num1 * num2))
-    
-    echo "Сумма: $num1 + $num2 = $sum"
-    echo "Разность: $num1 - $num2 = $diff"
-    echo "Произведение: $num1 * $num2 = $prod"
-    
-    if [ $num2 -ne 0 ]; then
-        div=$((num1 / num2))
-        echo "Частное (целое): $num1 / $num2 = $div"
-    else
-        echo "Деление на ноль невозможно"
-    fi
-    echo ""
-}
+echo "Анализ чисел: $@"
+echo "----------------"
 
-# 3. Условные операторы
-demo_conditions() {
-    echo "=== 3. Условные операторы ==="
-    read -p "Введите число от 1 до 100: " number
-    
-    if [ -z "$number" ]; then
-        echo "Ошибка: ничего не введено"
-    elif ! [[ "$number" =~ ^[0-9]+$ ]]; then
-        echo "Ошибка: введено не число"
-    elif [ $number -lt 1 ]; then
-        echo "Число слишком маленькое"
-    elif [ $number -gt 100 ]; then
-        echo "Число слишком большое"
-    elif [ $number -eq 42 ]; then
-        echo "Вы нашли ответ на главный вопрос жизни, вселенной и всего такого!"
-    elif [ $number -lt 50 ]; then
-        echo "Число меньше 50"
-    else
-        echo "Число больше или равно 50"
-    fi
-    echo ""
-}
-
-# 4. Циклы
-demo_loops() {
-    echo "=== 4. Демонстрация циклов ==="
-    
-    echo "Цикл for (1-5):"
-    for i in {1..5}; do
-        echo -n "$i "
-    done
-    echo ""
-    
-    echo "Цикл while (обратный отсчет):"
-    counter=5
-    while [ $counter -gt 0 ]; do
-        echo -n "$counter "
-        counter=$((counter - 1))
-    done
-    echo ""
-    
-    echo "Цикл с continue (пропуск четных):"
-    for i in {1..10}; do
-        if [ $((i % 2)) -eq 0 ]; then
-            continue
-        fi
-        echo -n "$i "
-    done
-    echo -e "\n"
-}
-
-# 5. Работа с файлами и каталогами
-demo_files() {
-    echo "=== 5. Анализ файловой системы ==="
-    
-    echo "Содержимое текущей директории:"
-    for item in *; do
-        if [ -d "$item" ]; then
-            echo "[DIR]  $item"
-        elif [ -f "$item" ]; then
-            echo "[FILE] $item"
-        else
-            echo "[?]    $item"
-        fi
-    done
-    
-    echo -e "\nПроверка существования файлов:"
-    check_files=("/etc/passwd" "/etc/shadow" "/несуществующий/файл")
-    for file in "${check_files[@]}"; do
-        if [ -e "$file" ]; then
-            echo "✓ $file существует"
-        else
-            echo "✗ $file не существует"
-        fi
-    done
-    echo ""
-}
-
-# 6. Массивы
-demo_arrays() {
-    echo "=== 6. Работа с массивами ==="
-    
-    # Индексированный массив
-    declare -a fruits=("Яблоко" "Банан" "Апельсин" "Киви")
-    echo "Фрукты в массиве:"
-    for fruit in "${fruits[@]}"; do
-        echo "  - $fruit"
-    done
-    echo "Всего фруктов: ${#fruits[@]}"
-    
-    # Ассоциативный массив (требует Bash 4+)
-    if declare -A student 2>/dev/null; then
-        declare -A student=(
-            [ФИО]="Иванов Иван Иванович"
-            [Группа]="ИТ-101"
-            [Средний_балл]="4.5"
-        )
-        echo -e "\nИнформация о студенте:"
-        for key in "${!student[@]}"; do
-            echo "  $key: ${student[$key]}"
-        done
-    else
-        echo -e "\nАссоциативные массивы не поддерживаются (требуется Bash 4+)"
-    fi
-    echo ""
-}
-
-# 7. Функции и возврат значений
-demo_functions() {
-    echo "=== 7. Функции ==="
-    
-    # Функция для проверки четности
-    is_even() {
-        if [ $(($1 % 2)) -eq 0 ]; then
-            return 0  # true в Unix
-        else
-            return 1  # false в Unix
-        fi
-    }
-    
-    # Функция для вычисления факториала
-    factorial() {
-        local n=$1
-        if [ $n -le 1 ]; then
-            echo 1
-        else
-            local prev=$(factorial $((n - 1)))
-            echo $((prev * n))
-        fi
-    }
-    
-    read -p "Введите число для проверки четности: " num
-    if is_even $num; then
-        echo "Число $num - четное"
-    else
-        echo "Число $num - нечетное"
+# Обработка каждого аргумента
+for number in "$@"; do
+    # Проверка, является ли аргумент числом
+    if ! [[ "$number" =~ ^-?[0-9]+$ ]]; then
+        echo "Пропускаем '$number' - это не целое число"
+        continue
     fi
     
-    read -p "Введите число для вычисления факториала (не более 10): " fact_num
-    if [ $fact_num -le 10 ] && [ $fact_num -ge 0 ]; then
-        result=$(factorial $fact_num)
-        echo "Факториал $fact_num = $result"
+    # Проверка четности
+    if [ $((number % 2)) -eq 0 ]; then
+        echo "  $number - четное"
+        ((even_count++))
     else
-        echo "Число должно быть от 0 до 10"
+        echo "  $number - нечетное"
+        ((odd_count++))
     fi
-    echo ""
-}
+done
 
-# 8. Обработка аргументов и опций
-demo_options() {
-    echo "=== 8. Обработка аргументов командной строки ==="
-    echo "Примеры запуска этого скрипта:"
-    echo "  $0 --help              # Показать справку"
-    echo "  $0 --test аргумент     # Тестовый режим"
-    echo "  $0 -v -f файл.txt      # Обработка опций"
-    echo ""
-}
+echo "----------------"
+echo "Итог:"
+echo "  Четных чисел: $even_count"
+echo "  Нечетных чисел: $odd_count"
+echo ""
 
-# 9. Системная информация
-demo_system() {
-    echo "=== 9. Системная информация ==="
-    echo "Дата и время: $(date)"
-    echo "Имя хоста: $(hostname)"
-    echo "Текущий пользователь: $(whoami)"
-    echo "Количество пользователей в системе: $(who | wc -l)"
-    echo "Время работы системы: $(uptime -p)"
-    echo "Загрузка CPU: $(uptime | awk -F'load average:' '{print $2}')"
-    echo "Свободная память: $(free -h | awk '/^Mem:/ {print $4}')"
-    echo ""
-}
-
-# 10. Практический пример: резервное копирование
-demo_backup() {
-    echo "=== 10. Практический пример: Симуляция резервного копирования ==="
-    
-    backup_dir="backup_$(date +%Y%m%d_%H%M%S)"
-    mkdir -p "$backup_dir" 2>/dev/null || {
-        echo "Ошибка создания директории $backup_dir"
-        return 1
-    }
-    
-    echo "Создана директория для резервной копии: $backup_dir"
-    
-    # Копируем текущие скрипты (только .sh файлы)
-    count=0
-    for file in *.sh; do
-        if [ -f "$file" ]; then
-            cp "$file" "$backup_dir/" 2>/dev/null && {
-                echo "  ✓ Скопирован: $file"
-                ((count++))
-            }
-        fi
-    done
-    
-    echo "Скопировано файлов: $count"
-    echo "Итоговый размер: $(du -sh "$backup_dir" | cut -f1)"
-    echo ""
-}
-
-# ==================== ГЛАВНОЕ МЕНЮ ====================
-
-show_menu() {
-    clear
-    echo "========================================="
-    echo "   ЛАБОРАТОРНАЯ РАБОТА №6 - ДЕМОНСТРАЦИЯ"
-    echo "========================================="
-    echo "  1. Переменные и аргументы"
-    echo "  2. Арифметические операции"
-    echo "  3. Условные операторы"
-    echo "  4. Циклы"
-    echo "  5. Работа с файлами"
-    echo "  6. Массивы"
-    echo "  7. Функции"
-    echo "  8. Обработка аргументов"
-    echo "  9. Системная информация"
-    echo " 10. Практический пример (резервное копирование)"
-    echo "  0. Выход"
-    echo "========================================="
-}
-
-main() {
-    while true; do
-        show_menu
-        read -p "Выберите задание (0-10): " choice
-        
-        case $choice in
-            1) demo_variables ;;
-            2) demo_arithmetic ;;
-            3) demo_conditions ;;
-            4) demo_loops ;;
-            5) demo_files ;;
-            6) demo_arrays ;;
-            7) demo_functions ;;
-            8) demo_options ;;
-            9) demo_system ;;
-            10) demo_backup ;;
-            0) 
-                echo "Выход из программы"
-                exit 0
-                ;;
-            *) 
-                echo "Неверный выбор. Попробуйте снова."
-                sleep 2
-                ;;
-        esac
-        
-        if [ $choice -ne 0 ]; then
-            read -p "Нажмите Enter для продолжения..." dummy
-        fi
-    done
-}
-
-# ==================== ОБРАБОТКА АРГУМЕНТОВ КОМАНДНОЙ СТРОКИ ====================
-
-# Если передан аргумент, выполняем соответствующую функцию напрямую
-case "${1:-}" in
-    "--help"|"-h")
-        echo "Использование: $0 [опция]"
-        echo "Опции:"
-        echo "  --help, -h     Показать эту справку"
-        echo "  --menu         Запустить интерактивное меню (по умолчанию)"
-        echo "  --test <arg>   Тестовый режим с аргументом"
-        echo "  --version      Показать версию"
-        exit 0
-        ;;
-    "--test")
-        echo "Тестовый режим. Аргумент: ${2:-не указан}"
-        exit 0
-        ;;
-    "--version")
-        echo "Лабораторная работа №6, версия 1.0"
-        exit 0
-        ;;
-    *)
-        # Запускаем главное меню по умолчанию
-        main
-        ;;
-esac
+# Определение результата
+if [ $even_count -gt $odd_count ]; then
+    echo "Результат: Четных больше"
+elif [ $odd_count -gt $even_count ]; then
+    echo "Результат: Нечетных больше"
+else
+    echo "Результат: Четных и нечетных поровну ($even_count каждого)"
+fi
