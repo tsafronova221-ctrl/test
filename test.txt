@@ -1,89 +1,174 @@
 #!/bin/bash
-# Скрипт обработки чисел с исключением 3-й и 6-й переменных
+# Скрипт для работы с ассоциативным массивом студентов
 
-echo "========================================"
-echo "    ОБРАБОТКА ЧИСЕЛ"
-echo "========================================"
-echo "Введите числа через пробел (не менее 6 для демонстрации):"
-echo "Пример: 1 2 3 4 5 6 7 8"
-echo ""
-
-# Считываем ввод пользователя
-read -p "Числа: " input
-
-# Проверка на пустой ввод
-if [ -z "$input" ]; then
-    echo "Ошибка: Не введены числа"
+# Проверяем поддержку ассоциативных массивов (требуется Bash 4+)
+if [[ ${BASH_VERSINFO[0]} -lt 4 ]]; then
+    echo "Ошибка: Требуется Bash версии 4.0 или выше"
+    echo "Текущая версия: $BASH_VERSION"
     exit 1
 fi
 
-# Разбиваем ввод на массив
-numbers=($input)
-total=${#numbers[@]}
-
-echo ""
-echo "Получено чисел: $total"
-echo ""
-
-# Инициализация переменных
-declare -a variables  # Массив для хранения переменных
-product=1             # Произведение четных (инициализируем 1)
-sum=0                 # Сумма нечетных
-
-# Создаем переменные и выполняем расчеты
-for ((i=0; i<total; i++)); do
-    index=$((i+1))
-    number="${numbers[i]}"
+# Функция для вычисления возраста по дате рождения
+calculate_age() {
+    local birth_date="$1"
+    local today=$(date '+%Y-%m-%d')
     
-    # Проверка, что введено число
-    if ! [[ "$number" =~ ^-?[0-9]+$ ]]; then
-        echo "Пропускаем '$number' (не число) на позиции $index"
-        continue
+    # Разбираем даты
+    local birth_year=$(date -d "$birth_date" '+%Y')
+    local birth_month=$(date -d "$birth_date" '+%m')
+    local birth_day=$(date -d "$birth_date" '+%d')
+    
+    local current_year=$(date '+%Y')
+    local current_month=$(date '+%m')
+    local current_day=$(date '+%d')
+    
+    # Вычисляем возраст
+    local age=$((current_year - birth_year))
+    
+    # Корректируем, если день рождения еще не наступил в этом году
+    if [ $current_month -lt $birth_month ] || \
+       ([ $current_month -eq $birth_month ] && [ $current_day -lt $birth_day ]); then
+        age=$((age - 1))
     fi
     
-    # Создаем переменную с именем var_номер
-    var_name="var_$index"
-    declare "$var_name=$number"
-    variables+=("$var_name")
+    echo $age
+}
+
+# Функция для красивого вывода студента
+print_student() {
+    local id="$1"
+    local fio="$2"
+    local birth="$3"
+    local age="$4"
+    local group="$5"
+    local institute="$6"
     
-    echo "Переменная $var_name = $number"
+    printf "│ %-3s │ %-25s │ %-12s │ %-3s │ %-10s │ %-20s │\n" \
+           "$id" "$fio" "$birth" "$age" "$group" "$institute"
+}
+
+# Функция для вывода заголовка таблицы
+print_header() {
+    echo "┌─────┬───────────────────────────┬──────────────┬─────┬────────────┬──────────────────────┐"
+    printf "│ %-3s │ %-25s │ %-12s │ %-3s │ %-10s │ %-20s │\n" \
+           "ID" "ФИО" "Дата рожд." "Возр" "Группа" "Институт"
+    echo "├─────┼───────────────────────────┼──────────────┼─────┼────────────┼──────────────────────┤"
+}
+
+# Функция для вывода подвала таблицы
+print_footer() {
+    echo "└─────┴───────────────────────────┴──────────────┴─────┴────────────┴──────────────────────┘"
+}
+
+# Основной скрипт
+clear
+echo "╔══════════════════════════════════════════════════════════════════════╗"
+echo "║                    БАЗА ДАННЫХ СТУДЕНТОВ                            ║"
+echo "║               (фильтр: возраст > 21 года)                           ║"
+echo "╚══════════════════════════════════════════════════════════════════════╝"
+echo ""
+
+# Создаем ассоциативный массив для студентов
+# Ключ - ID студента, значение - строка с данными
+declare -A students
+
+# Наполняем массив данными (ID => "ФИО;ДатаРождения;Группа;Институт")
+students[101]="Иванов Иван Иванович;2000-05-15;ИТ-101;Институт информатики"
+students[102]="Петрова Анна Сергеевна;2002-11-23;Л-202;Институт лингвистики"
+students[103]="Сидоров Алексей Петрович;1999-08-30;Ф-301;Физический институт"
+students[104]="Кузнецова Мария Дмитриевна;2003-03-12;Э-405;Институт экономики"
+students[105]="Васильев Дмитрий Андреевич;1998-12-05;ИТ-102;Институт информатики"
+students[106]="Смирнова Екатерина Валерьевна;2001-07-19;М-503;Медицинский институт"
+students[107]="Попов Александр Викторович;1997-09-25;Ю-601;Юридический институт"
+students[108]="Федорова Ольга Ивановна;2004-01-08;Л-203;Институт лингвистики"
+students[109]="Морозов Сергей Николаевич;2000-06-17;ИТ-103;Институт информатики"
+students[110]="Волкова Татьяна Павловна;1996-04-21;Ф-302;Физический институт"
+
+# Выводим общую статистику
+total_students=${#students[@]}
+echo "📊 Общая информация:"
+echo "   Всего студентов в базе: $total_students"
+echo "   Текущая дата: $(date '+%d.%m.%Y')"
+echo ""
+
+# Выводим всех студентов
+echo "📋 ВСЕ СТУДЕНТЫ:"
+print_header
+
+for id in "${!students[@]}"; do
+    IFS=';' read -r fio birth_date group institute <<< "${students[$id]}"
+    age=$(calculate_age "$birth_date")
+    print_student "$id" "$fio" "$birth_date" "$age" "$group" "$institute"
+done
+
+print_footer
+
+echo ""
+echo "🔍 СТУДЕНТЫ СТАРШЕ 21 ГОДА:"
+echo ""
+
+# Фильтруем студентов старше 21 года
+declare -A older_students
+count_older=0
+
+for id in "${!students[@]}"; do
+    IFS=';' read -r fio birth_date group institute <<< "${students[$id]}"
+    age=$(calculate_age "$birth_date")
     
-    # Пропускаем 3-ю и 6-ю переменные в расчетах
-    if [ $index -eq 3 ] || [ $index -eq 6 ]; then
-        echo "  ⚠️  Пропуск в расчетах (3-я или 6-я переменная)"
-        continue
-    fi
-    
-    # Проверяем четность и выполняем соответствующие операции
-    if [ $((number % 2)) -eq 0 ]; then
-        echo "  ✓ Четное → идет в произведение"
-        product=$((product * number))
-    else
-        echo "  ✓ Нечетное → идет в сумму"
-        sum=$((sum + number))
+    if [ $age -gt 21 ]; then
+        older_students[$id]="${students[$id]};$age"
+        count_older=$((count_older + 1))
     fi
 done
 
-echo ""
-echo "========================================"
-echo "        РЕЗУЛЬТАТЫ РАСЧЕТОВ"
-echo "========================================"
+# Выводим отфильтрованных студентов
+if [ $count_older -eq 0 ]; then
+    echo "❌ Студентов старше 21 года не найдено"
+else
+    echo "Найдено студентов старше 21 года: $count_older"
+    echo ""
+    
+    print_header
+    
+    # Сортируем по ID для красивого вывода
+    sorted_ids=$(echo "${!older_students[@]}" | tr ' ' '\n' | sort -n)
+    
+    for id in $sorted_ids; do
+        IFS=';' read -r fio birth_date group institute age <<< "${older_students[$id]}"
+        print_student "$id" "$fio" "$birth_date" "$age" "$group" "$institute"
+    done
+    
+    print_footer
+    
+    # Дополнительная статистика
+    echo ""
+    echo "📈 Статистика по возрасту:"
+    
+    # Собираем все возрасты для анализа
+    declare -a ages
+    for data in "${older_students[@]}"; do
+        IFS=';' read -r _ _ _ _ age <<< "$data"
+        ages+=($age)
+    done
+    
+    # Находим мин, макс и средний возраст
+    min_age=999
+    max_age=0
+    sum_age=0
+    
+    for age in "${ages[@]}"; do
+        if [ $age -lt $min_age ]; then min_age=$age; fi
+        if [ $age -gt $max_age ]; then max_age=$age; fi
+        sum_age=$((sum_age + age))
+    done
+    
+    avg_age=$((sum_age / count_older))
+    
+    echo "   Самый молодой в выборке: $min_age лет"
+    echo "   Самый старший в выборке: $max_age лет"
+    echo "   Средний возраст: $avg_age лет"
+fi
 
-# Выводим все созданные переменные
-echo "Созданные переменные:"
-for var in "${variables[@]}"; do
-    eval "value=\$$var"
-    echo "  $var = $value"
-done
-
 echo ""
-echo "Результаты расчетов (без учета 3-й и 6-й переменных):"
-echo "  Произведение четных чисел: $product"
-echo "  Сумма нечетных чисел: $sum"
-echo ""
-
-# Дополнительная информация
-echo "Статистика:"
-echo "  Всего переменных: ${#variables[@]}"
-echo "  Учтено в расчетах: $(( ${#variables[@]} - (total >= 3 ? 1 : 0) - (total >= 6 ? 1 : 0) ))"
-echo "  Пропущено (3-я и 6-я): $(( (total >= 3 ? 1 : 0) + (total >= 6 ? 1 : 0) ))"
+echo "══════════════════════════════════════════════════════════════════════"
+echo "Скрипт выполнен: $(date '+%H:%M:%S')"
