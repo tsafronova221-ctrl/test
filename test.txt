@@ -1,44 +1,96 @@
 #!/bin/bash
-# file-finder.sh - компактная версия
 
-# Проверка аргументов
-if [ $# -ne 2 ]; then
-    echo "Использование: $0 <директория> <тип_файла>"
-    echo "Пример: $0 /home/user ascii"
-    exit 1
-fi
+# Лабораторная работа №7. Скрипт для работы с файлами и ссылками
+# Автор: [Ваше имя/студент]
+# Дата: $(date)
 
-search_dir="$1"
-file_type="$2"
-output_file="${file_type}.txt"
+echo "=== Начало работы скрипта ==="
+echo
 
-# Проверка директории
-if [ ! -d "$search_dir" ] || [ ! -r "$search_dir" ]; then
-    echo "Ошибка: директория '$search_dir' недоступна"
-    exit 1
-fi
+# 1. Создание файла и жёсткой ссылки
+echo "1. Создаю исходный файл и жёсткую ссылку на него..."
 
-# Поиск файлов
-echo "Поиск файлов типа '$file_type' в '$search_dir'..."
-count=0
+# Создаём исходный файл с содержимым
+SOURCE_FILE="source_data.txt"
+echo "Данные для лабораторной работы №7 по файловым системам" > "$SOURCE_FILE"
+echo "Файл создан: $SOURCE_FILE"
 
-# Используем find для рекурсивного поиска
-find "$search_dir" -type f -print0 2>/dev/null | while IFS= read -r -d $'\0' file; do
-    if file_info=$(file -b --mime-type "$file" 2>/dev/null); then
-        if echo "$file_info" | grep -qi "$file_type"; then
-            echo "$file"
-            ((count++))
-        fi
-    fi
-done > "$output_file"
+# Создаём жёсткую ссылку
+HARDLINK_FILE="hardlink_to_data.txt"
+ln "$SOURCE_FILE" "$HARDLINK_FILE"
+echo "Жёсткая ссылка создана: $HARDLINK_FILE -> $SOURCE_FILE"
 
-# Подсчет результатов
-found_count=$(wc -l < "$output_file" 2>/dev/null || echo 0)
+echo
 
-if [ $found_count -gt 0 ]; then
-    echo "Найдено файлов: $found_count"
-    echo "Результаты сохранены в: $output_file"
+# 2. Проверка одинакового inode
+echo "2. Проверяю, что оба файла имеют одинаковый inode..."
+
+# Получаем номера inode
+INODE_SOURCE=$(ls -i "$SOURCE_FILE" | awk '{print $1}')
+INODE_HARDLINK=$(ls -i "$HARDLINK_FILE" | awk '{print $1}')
+
+echo "  Inode исходного файла ($SOURCE_FILE): $INODE_SOURCE"
+echo "  Inode жёсткой ссылки ($HARDLINK_FILE): $INODE_HARDLINK"
+
+# Сравниваем inode
+if [ "$INODE_SOURCE" -eq "$INODE_HARDLINK" ]; then
+    echo "  ✓ УСПЕХ: Оба файла имеют одинаковый inode ($INODE_SOURCE)"
 else
-    echo "Файлов не найдено"
-    > "$output_file"
+    echo "  ✗ ОШИБКА: Inode не совпадают!"
+    exit 1
 fi
+
+echo
+
+# 3. Вывод исходных атрибутов файла
+echo "3. Исходные атрибуты файла $SOURCE_FILE:"
+stat --format="  Размер:     %s байт
+  Inode:      %i
+  Ссылок:     %h
+  Права:      %A (%a)
+  Владелец:   %U (UID: %u)
+  Группа:     %G (GID: %g)
+  Модифицирован: %y" "$SOURCE_FILE"
+
+echo
+
+# 4. Изменение прав доступа
+echo "4. Изменяю права доступа на файл $SOURCE_FILE..."
+
+# Меняем права с 644 (rw-r--r--) на 755 (rwxr-xr-x)
+chmod 755 "$SOURCE_FILE"
+
+# Альтернативный вариант через символьную запись:
+# chmod u+x,g+x,o+x "$SOURCE_FILE"
+
+echo "  Права изменены: 644 (rw-r--r--) → 755 (rwxr-xr-x)"
+echo
+
+# 5. Вывод обновлённых атрибутов
+echo "5. Обновлённые атрибуты файла $SOURCE_FILE:"
+stat --format="  Размер:     %s байт
+  Inode:      %i
+  Ссылок:     %h
+  Права:      %A (%a)
+  Владелец:   %U (UID: %u)
+  Группа:     %G (GID: %g)
+  Модифицирован: %y" "$SOURCE_FILE"
+
+echo
+
+# 6. Дополнительная проверка через ls
+echo "6. Проверка через ls -l:"
+ls -l "$SOURCE_FILE" "$HARDLINK_FILE"
+
+echo
+
+# 7. Проверка содержимого через обе ссылки
+echo "7. Проверяю содержимое файла через обе ссылки..."
+echo "  Через исходный файл:"
+echo "  $(head -c 50 "$SOURCE_FILE")..."
+echo
+echo "  Через жёсткую ссылку:"
+echo "  $(head -c 50 "$HARDLINK_FILE")..."
+
+echo
+echo "=== Работа скрипта завершена ==="
