@@ -1,0 +1,187 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+<h2 style="font-family: 'Press Start 2P', cursive; font-size: 20px; color: #00ff00; margin-bottom: 30px;">
+    {{ "✏️ РЕДАКТИРОВАНИЕ ИГРЫ" if action == 'edit' else "➕ ДОБАВЛЕНИЕ ИГРЫ" }}
+</h2>
+
+{% if action == 'add' %}
+<div style="margin-bottom: 30px; padding: 20px; background: rgba(0, 255, 0, 0.1); border: 2px solid #00ff00; border-radius: 10px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <div>
+            <span style="color: #00ff00; font-family: 'Press Start 2P', cursive; font-size: 12px;">ТИП ИГРЫ:</span>
+            <span style="color: #ffffff; margin-left: 10px; font-size: 14px;">
+                {% if game_type == 'indie' %}🎨 ИНДИ-ИГРА
+                {% elif game_type == 'aaa' %}💰 AAA-ИГРА
+                {% elif game_type == 'mobile' %}📱 МОБИЛЬНАЯ ИГРА
+                {% endif %}
+            </span>
+        </div>
+        <a href="{{ url_for('add_game_select') }}" class="btn" style="padding: 8px 15px; font-size: 10px;">⟲ ИЗМЕНИТЬ ТИП</a>
+    </div>
+</div>
+{% endif %}
+
+<form method="POST" style="max-width: 600px; margin: 0 auto;">
+    {{ form.hidden_tag() }}
+    
+    <div class="form-group">
+        {{ form.title.label }} <span class="required-star">*</span>
+        {{ form.title(placeholder="ВВЕДИТЕ НАЗВАНИЕ ИГРЫ") }}
+        {% if form.title.errors %}
+            <div class="error-message">{{ form.title.errors[0] }}</div>
+        {% endif %}
+        <div class="help-text">НАПРИМЕР: THE WITCHER 3, CYBERPUNK 2077</div>
+    </div>
+    
+    <div class="form-group">
+        {{ form.developer.label }} <span class="required-star">*</span>
+        {{ form.developer(placeholder="ВВЕДИТЕ НАЗВАНИЕ РАЗРАБОТЧИКА") }}
+        {% if form.developer.errors %}
+            <div class="error-message">{{ form.developer.errors[0] }}</div>
+        {% endif %}
+        <div class="help-text">НАПРИМЕР: CD PROJEKT RED, NINTENDO</div>
+    </div>
+    
+    <div class="form-group">
+        {{ form.year.label }} <span class="required-star">*</span>
+        {{ form.year(placeholder="1970-2026") }}
+        {% if form.year.errors %}
+            <div class="error-message">{{ form.year.errors[0] }}</div>
+        {% endif %}
+        <div class="help-text">ГОД ВЫПУСКА ОТ 1970 ДО 2026</div>
+    </div>
+    
+    <div class="form-group">
+        {{ form.price.label }} <span class="required-star">*</span>
+        {{ form.price(placeholder="0.00 - 1000.00") }}
+        {% if form.price.errors %}
+            <div class="error-message">{{ form.price.errors[0] }}</div>
+        {% endif %}
+        <div class="help-text">ЦЕНА В ДОЛЛАРАХ США</div>
+    </div>
+    
+    {% if game_type == 'indie' %}
+        <div class="form-group">
+            {{ form.team_size.label }} <span class="required-star">*</span>
+            {{ form.team_size(placeholder="1-1000") }}
+            {% if form.team_size.errors %}
+                <div class="error-message">{{ form.team_size.errors[0] }}</div>
+            {% endif %}
+            <div class="help-text">КОЛИЧЕСТВО РАЗРАБОТЧИКОВ В КОМАНДЕ</div>
+        </div>
+        
+        <div class="form-group">
+            {{ form.engine.label }} <span class="required-star">*</span>
+            {{ form.engine(placeholder="UNITY, UNREAL ENGINE, GODOT...") }}
+            {% if form.engine.errors %}
+                <div class="error-message">{{ form.engine.errors[0] }}</div>
+            {% endif %}
+            <div class="help-text">ИГРОВОЙ ДВИЖОК, НА КОТОРОМ РАЗРАБОТАНА ИГРА</div>
+        </div>
+        
+    {% elif game_type == 'aaa' %}
+        <div class="form-group">
+            {{ form.budget.label }} <span class="required-star">*</span>
+            {{ form.budget(placeholder="1.0 - 1000.0") }}
+            {% if form.budget.errors %}
+                <div class="error-message">{{ form.budget.errors[0] }}</div>
+            {% endif %}
+            <div class="help-text">БЮДЖЕТ В МИЛЛИОНАХ ДОЛЛАРОВ</div>
+        </div>
+        
+        <div class="form-group">
+            {{ form.platforms.label }}
+            {{ form.platforms(placeholder="PC, PS5, XBOX SERIES X, NINTENDO SWITCH") }}
+            <div class="help-text">УКАЖИТЕ ПЛАТФОРМЫ ЧЕРЕЗ ЗАПЯТУЮ (НЕОБЯЗАТЕЛЬНО)</div>
+        </div>
+        
+    {% elif game_type == 'mobile' %}
+        <div class="form-group" style="background: rgba(0, 255, 0, 0.05); padding: 15px; border-radius: 5px;">
+            <label style="display: flex; align-items: center; cursor: pointer;">
+                {{ form.is_free(style="width: auto; margin-right: 15px;") }}
+                <span style="color: #00ff00;">{{ form.is_free.label.text }}</span>
+            </label>
+            <div class="help-text" style="margin-left: 35px;">ОТМЕТЬТЕ, ЕСЛИ ИГРА БЕСПЛАТНАЯ</div>
+        </div>
+        
+        <div class="form-group" style="background: rgba(0, 255, 0, 0.05); padding: 15px; border-radius: 5px;">
+            <label style="display: flex; align-items: center; cursor: pointer;">
+                {{ form.microtransactions(style="width: auto; margin-right: 15px;") }}
+                <span style="color: #00ff00;">{{ form.microtransactions.label.text }}</span>
+            </label>
+            <div class="help-text" style="margin-left: 35px;">ОТМЕТЬТЕ, ЕСЛИ В ИГРЕ ЕСТЬ ВНУТРИИГРОВЫЕ ПОКУПКИ</div>
+        </div>
+    {% endif %}
+    
+    <div style="margin-top: 50px; display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+        <button type="submit" class="btn btn-success" style="padding: 15px 40px; font-size: 14px;">
+            {{ "💾 СОХРАНИТЬ ИЗМЕНЕНИЯ" if action == 'edit' else "➕ ДОБАВИТЬ ИГРУ" }}
+        </button>
+        <a href="{{ url_for('games_list') }}" class="btn" style="padding: 15px 40px;">
+            ❌ ОТМЕНА
+        </a>
+    </div>
+</form>
+
+<style>
+    .form-group {
+        margin-bottom: 25px;
+        position: relative;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 10px;
+        font-family: 'Press Start 2P', cursive;
+        font-size: 11px;
+        color: #00ff00;
+        text-transform: uppercase;
+    }
+    
+    input[type="text"], input[type="number"] {
+        width: 100%;
+        padding: 15px;
+        background: #1a1e2a;
+        border: 2px solid #00ff00;
+        border-radius: 8px;
+        color: #ffffff;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+    
+    input[type="text"]:focus, input[type="number"]:focus {
+        outline: none;
+        border-color: #00ff00;
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        background: #0a0f1e;
+    }
+    
+    input[type="text"]::placeholder, input[type="number"]::placeholder {
+        color: #666666;
+        font-size: 12px;
+    }
+    
+    .error-message {
+        color: #ff4444;
+        font-size: 11px;
+        margin-top: 5px;
+        padding: 5px 10px;
+        background: rgba(255, 68, 68, 0.1);
+        border-left: 3px solid #ff4444;
+    }
+    
+    .help-text {
+        color: #888888;
+        font-size: 10px;
+        margin-top: 8px;
+        font-style: italic;
+    }
+    
+    .required-star {
+        color: #ff4444;
+        margin-left: 5px;
+        font-size: 14px;
+    }
+</style>
+{% endblock %}

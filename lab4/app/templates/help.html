@@ -1,0 +1,87 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+<h2 style="font-family: 'Press Start 2P', cursive; font-size: 20px; color: #00ff00; margin-bottom: 30px;">
+    ❓ ПОМОЩЬ
+</h2>
+
+<div style="display: grid; gap: 30px;">
+    <div style="background: rgba(0, 255, 0, 0.05); border: 2px solid #00ff00; border-radius: 10px; padding: 25px;">
+        <h3 style="font-family: 'Press Start 2P', cursive; font-size: 16px; color: #00ff00; margin-bottom: 20px;">
+            🎮 О ПРИЛОЖЕНИИ
+        </h3>
+        <p style="margin-bottom: 15px; line-height: 1.8;">
+            БИБЛИОТЕКА ВИДЕОИГР - ЭТО ПРИЛОЖЕНИЕ ДЛЯ УПРАВЛЕНИЯ КОЛЛЕКЦИЕЙ ИГР. 
+            ВЫ МОЖЕТЕ ДОБАВЛЯТЬ ИГРЫ РАЗНЫХ ТИПОВ, РЕДАКТИРОВАТЬ ИХ, 
+            УДАЛЯТЬ, СОХРАНЯТЬ И ЗАГРУЖАТЬ ДАННЫЕ.
+        </p>
+    </div>
+    
+    <div style="background: rgba(0, 255, 0, 0.05); border: 2px solid #00ff00; border-radius: 10px; padding: 25px;">
+        <h3 style="font-family: 'Press Start 2P', cursive; font-size: 16px; color: #00ff00; margin-bottom: 20px;">
+            📋 ТИПЫ ИГР
+        </h3>
+        <div style="display: grid; gap: 20px;">
+            <div style="border-left: 4px solid #00ff00; padding-left: 15px;">
+                <h4 style="color: #00ff00; margin-bottom: 10px;">🎨 ИНДИ-ИГРА</h4>
+                <p>МАЛЕНЬКАЯ КОМАНДА РАЗРАБОТЧИКОВ, КРЕАТИВНЫЙ ПОДХОД</p>
+                <p style="color: rgba(0, 255, 0, 0.7); margin-top: 5px;">ОБЯЗАТЕЛЬНЫЕ ПОЛЯ: РАЗМЕР КОМАНДЫ, ИГРОВОЙ ДВИЖОК</p>
+            </div>
+            <div style="border-left: 4px solid #00ff00; padding-left: 15px;">
+                <h4 style="color: #00ff00; margin-bottom: 10px;">💰 AAA-ИГРА</h4>
+                <p>БОЛЬШОЙ БЮДЖЕТ, МУЛЬТИПЛАТФОРМЕННОСТЬ</p>
+                <p style="color: rgba(0, 255, 0, 0.7); margin-top: 5px;">ОБЯЗАТЕЛЬНЫЕ ПОЛЯ: БЮДЖЕТ, ПЛАТФОРМЫ (НЕОБЯЗАТЕЛЬНО)</p>
+            </div>
+            <div style="border-left: 4px solid #00ff00; padding-left: 15px;">
+                <h4 style="color: #00ff00; margin-bottom: 10px;">📱 МОБИЛЬНАЯ ИГРА</h4>
+                <p>ДЛЯ СМАРТФОНОВ И ПЛАНШЕТОВ</p>
+                <p style="color: rgba(0, 255, 0, 0.7); margin-top: 5px;">ДОПОЛНИТЕЛЬНЫЕ ПОЛЯ: БЕСПЛАТНАЯ, МИКРОТРАНЗАКЦИИ</p>
+            </div>
+        </div>
+    </div>
+    
+    <div style="background: rgba(0, 255, 0, 0.05); border: 2px solid #00ff00; border-radius: 10px; padding: 25px;">
+        <h3 style="font-family: 'Press Start 2P', cursive; font-size: 16px; color: #00ff00; margin-bottom: 20px;">
+            💾 РАБОТА С ФАЙЛАМИ
+        </h3>
+        <div style="display: grid; gap: 20px;">
+            <div>
+                <h4 style="color: #00ff00; margin-bottom: 10px;">📦 PICKLE (.pkl)</h4>
+                <p>✓ ПОЛНОЕ СОХРАНЕНИЕ ОБЪЕКТОВ</p>
+                <p>✓ МОЖНО ЗАГРУЗИТЬ ОБРАТНО</p>
+                <p>✓ СОХРАНЯЕТ ВСЕ ДАННЫЕ</p>
+            </div>
+            <div>
+                <h4 style="color: #ffff00; margin-bottom: 10px;">📄 ТЕКСТОВЫЙ (.txt)</h4>
+                <p>✓ ТОЛЬКО ЭКСПОРТ ДЛЯ ПРОСМОТРА</p>
+                <p>✗ НЕЛЬЗЯ ЗАГРУЗИТЬ В БИБЛИОТЕКУ</p>
+                <p>✓ ЧИТАЕМЫЙ ФОРМАТ</p>
+            </div>
+        </div>
+    </div>
+    
+    <div style="background: rgba(255, 68, 68, 0.1); border: 2px solid #ff4444; border-radius: 10px; padding: 25px;">
+        <h3 style="font-family: 'Press Start 2P', cursive; font-size: 16px; color: #ff4444; margin-bottom: 20px;">
+            ⚠️ ЧАСТЫЕ ОШИБКИ
+        </h3>
+        <div style="display: grid; gap: 15px;">
+            <div>
+                <p style="color: #ff4444;">❌ "ФАЙЛ НЕ СОДЕРЖИТ КОРРЕКТНЫЕ ОБЪЕКТЫ"</p>
+                <p style="color: rgba(255, 255, 255, 0.8); margin-left: 20px;">→ ИСПОЛЬЗУЙТЕ ФАЙЛЫ .pkl, СОЗДАННЫЕ ЭТИМ ПРИЛОЖЕНИЕМ</p>
+            </div>
+            <div>
+                <p style="color: #ff4444;">❌ "ТЕКСТОВЫЕ ФАЙЛЫ НЕЛЬЗЯ ЗАГРУЗИТЬ"</p>
+                <p style="color: rgba(255, 255, 255, 0.8); margin-left: 20px;">→ .txt ФАЙЛЫ ТОЛЬКО ДЛЯ ПРОСМОТРА, ИСПОЛЬЗУЙТЕ .pkl</p>
+            </div>
+            <div>
+                <p style="color: #ff4444;">❌ "ПОЛЕ ОБЯЗАТЕЛЬНО ДЛЯ ЗАПОЛНЕНИЯ"</p>
+                <p style="color: rgba(255, 255, 255, 0.8); margin-left: 20px;">→ ЗАПОЛНИТЕ ВСЕ ПОЛЯ, ОТМЕЧЕННЫЕ <span style="color: #ff4444;">*</span></p>
+            </div>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="{{ url_for('index') }}" class="btn">🏠 НА ГЛАВНУЮ</a>
+    </div>
+</div>
+{% endblock %}

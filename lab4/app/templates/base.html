@@ -1,0 +1,297 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Библиотека видеоигр</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #0a0f1e;
+            background-image: 
+                linear-gradient(rgba(0, 255, 0, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 0, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            color: #ffffff;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(10, 15, 30, 0.95);
+            border: 3px solid #00ff00;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3),
+                        inset 0 0 10px rgba(0, 255, 0, 0.2);
+            padding: 30px;
+            backdrop-filter: blur(5px);
+        }
+        
+        h1 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 24px;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00,
+                        2px 2px 0 #000;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #00ff00;
+            letter-spacing: 2px;
+        }
+        
+        .nav-menu {
+            background: rgba(0, 255, 0, 0.1);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-menu a {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            color: #00ff00;
+            text-decoration: none;
+            padding: 10px 20px;
+            border: 2px solid transparent;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        
+        .nav-menu a:hover {
+            background: #00ff00;
+            color: #0a0f1e;
+            border-color: #00ff00;
+            box-shadow: 0 0 20px #00ff00;
+            transform: translateY(-2px);
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            animation: slideIn 0.3s ease;
+            border: 2px solid;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .alert-success {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+            border-color: #00ff00;
+        }
+        
+        .alert-error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff4444;
+            border-color: #ff4444;
+        }
+        
+        .alert-warning {
+            background: rgba(255, 255, 0, 0.2);
+            color: #ffff00;
+            border-color: #ffff00;
+        }
+        
+        .alert-info {
+            background: rgba(0, 255, 255, 0.2);
+            color: #00ffff;
+            border-color: #00ffff;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            background: transparent;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #00ff00;
+            color: #0a0f1e;
+            box-shadow: 0 0 30px #00ff00;
+            transform: scale(1.05);
+        }
+        
+        .btn-danger {
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+        
+        .btn-danger:hover {
+            background: #ff4444;
+            color: #0a0f1e;
+            box-shadow: 0 0 30px #ff4444;
+        }
+        
+        .btn-success {
+            border-color: #00ff00;
+            color: #00ff00;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(0, 255, 0, 0.05);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 255, 0, 0.3);
+            color: #ffffff;
+        }
+        
+        th {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            background: rgba(0, 255, 0, 0.1);
+            color: #00ff00;
+        }
+        
+        tr:hover {
+            background: rgba(0, 255, 0, 0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            color: #00ff00;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            background: #1a1e2a;
+            border: 2px solid #00ff00;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #ffffff;
+            transition: all 0.3s ease;
+        }
+        
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #00ff00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+        
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            accent-color: #00ff00;
+        }
+        
+        .game-card {
+            background: rgba(0, 255, 0, 0.05);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+        }
+        
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            color: rgba(0, 255, 0, 0.7);
+            padding-top: 20px;
+            border-top: 2px solid rgba(0, 255, 0, 0.3);
+        }
+        
+        .required-star {
+            color: #ff4444;
+            margin-left: 5px;
+        }
+        
+        .help-text {
+            color: rgba(0, 255, 0, 0.7);
+            font-size: 11px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 БИБЛИОТЕКА ВИДЕОИГР</h1>
+        
+        <div class="nav-menu">
+            <a href="{{ url_for('index') }}">🏠 ГЛАВНАЯ</a>
+            <a href="{{ url_for('games_list') }}">📚 ИГРЫ</a>
+            <a href="{{ url_for('add_game_select') }}">➕ ДОБАВИТЬ</a>
+            
+            <a href="{{ url_for('files_list') }}">💾 ФАЙЛЫ</a>
+            <a href="{{ url_for('statistics') }}">📊 СТАТИСТИКА</a>
+            <a href="{{ url_for('clear_library') }}" onclick="return confirm('ВЫ УВЕРЕНЫ? ВСЕ ИГРЫ БУДУТ УДАЛЕНЫ!')">🗑️ ОЧИСТИТЬ</a>
+            <a href="{{ url_for('help_page') }}">❓ ПОМОЩЬ</a>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+        
+        <div class="footer">
+            <p>🎮 БИБЛИОТЕКА ВИДЕОИГР | SQLite</p>
+            <p>📁 База данных: data/games.db</p>
+        </div>
+    </div>
+</body>
+</html>
