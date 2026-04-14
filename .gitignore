@@ -1,0 +1,59 @@
+```
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Database files
+*.db
+instance/*.db
+
+# Dependencies
+venv/
+.venv/
+env/
+.ENV/
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Testing
+.coverage
+htmlcov/
+.coverage.*
+.nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment variables
+.env
+.env.local
+.env.*
+
+# Mypy
+.mypy_cache/
+
+# Pytest
+.pytest_cache/
+
+# Alembic migrations (if not already tracked)
+migrations/versions/*.pyc
+```
