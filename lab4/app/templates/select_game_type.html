@@ -1,0 +1,101 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+<h2 style="font-family: 'Press Start 2P', cursive; font-size: 20px; color: #00ff00; margin-bottom: 30px;">
+    🎮 ВЫБЕРИТЕ ТИП ИГРЫ
+</h2>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; margin: 40px 0;">
+    
+    <a href="{{ url_for('add_game', game_type='indie') }}" style="text-decoration: none;">
+        <div class="game-type-card">
+            <div style="font-size: 64px; margin-bottom: 20px;">🎨</div>
+            <h3>ИНДИ-ИГРА</h3>
+            <p class="game-type-desc">Маленькая команда разработчиков</p>
+            <p class="game-type-desc">Креативный подход, уникальный стиль</p>
+            <div class="game-type-features">
+                <p>✓ Размер команды</p>
+                <p>✓ Игровой движок</p>
+            </div>
+        </div>
+    </a>
+    
+    <a href="{{ url_for('add_game', game_type='aaa') }}" style="text-decoration: none;">
+        <div class="game-type-card">
+            <div style="font-size: 64px; margin-bottom: 20px;">💰</div>
+            <h3>AAA-ИГРА</h3>
+            <p class="game-type-desc">Большой бюджет, высокая производительность</p>
+            <p class="game-type-desc">Мультиплатформенность</p>
+            <div class="game-type-features">
+                <p>✓ Бюджет в миллионах $</p>
+                <p>✓ Платформы</p>
+            </div>
+        </div>
+    </a>
+    
+    <a href="{{ url_for('add_game', game_type='mobile') }}" style="text-decoration: none;">
+        <div class="game-type-card">
+            <div style="font-size: 64px; margin-bottom: 20px;">📱</div>
+            <h3>МОБИЛЬНАЯ ИГРА</h3>
+            <p class="game-type-desc">Для смартфонов и планшетов</p>
+            <p class="game-type-desc">Казуальный или хардкорный геймплей</p>
+            <div class="game-type-features">
+                <p>✓ Бесплатная / Платная</p>
+                <p>✓ Микротранзакции</p>
+            </div>
+        </div>
+    </a>
+</div>
+
+<div style="text-align: center; margin-top: 40px;">
+    <a href="{{ url_for('games_list') }}" class="btn">📚 К БИБЛИОТЕКЕ</a>
+</div>
+
+<style>
+    .game-type-card {
+        background: rgba(0, 255, 0, 0.05);
+        border: 2px solid #00ff00;
+        border-radius: 15px;
+        padding: 30px 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .game-type-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 0 40px rgba(0, 255, 0, 0.4);
+        background: rgba(0, 255, 0, 0.15);
+    }
+    
+    .game-type-card h3 {
+        font-family: 'Press Start 2P', cursive;
+        font-size: 16px;
+        color: #00ff00;
+        margin: 20px 0 15px;
+        text-shadow: 0 0 5px #00ff00;
+    }
+    
+    .game-type-desc {
+        color: #ffffff;
+        font-size: 12px;
+        margin: 5px 0;
+        line-height: 1.6;
+    }
+    
+    .game-type-features {
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid rgba(0, 255, 0, 0.3);
+    }
+    
+    .game-type-features p {
+        color: #00ff00;
+        font-size: 11px;
+        margin: 5px 0;
+    }
+</style>
+{% endblock %}

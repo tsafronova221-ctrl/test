@@ -1,0 +1,212 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+<h2 style="font-family: 'Press Start 2P', cursive; font-size: 20px; color: #00ff00; margin-bottom: 30px;">
+    💾 УПРАВЛЕНИЕ ФАЙЛАМИ
+</h2>
+
+<div style="margin-bottom: 20px; padding: 15px; background: rgba(0, 255, 0, 0.1); border: 2px solid #00ff00; border-radius: 10px;">
+    <p style="color: #00ff00;">📁 ФАЙЛЫ СОХРАНЯЮТСЯ В ПАПКУ: <strong>data/</strong></p>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px;">
+    <!-- Сохранение -->
+    <div style="background: rgba(0, 255, 0, 0.05); border: 2px solid #00ff00; border-radius: 10px; padding: 25px;">
+        <h3 style="color: #00ff00; margin-bottom: 20px; font-family: 'Press Start 2P', cursive; font-size: 14px;">💾 СОХРАНИТЬ</h3>
+        <form action="{{ url_for('save_file') }}" method="POST">
+            <div class="form-group">
+                <label>ФОРМАТ:</label>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 10px; cursor: pointer;">
+                        <input type="radio" name="format" value="1" checked style="width: auto; margin-right: 10px;"> 
+                        📦 PICKLE (.pkl) - полное сохранение
+                    </label>
+                    <label style="display: block; cursor: pointer;">
+                        <input type="radio" name="format" value="2" style="width: auto; margin-right: 10px;"> 
+                        📄 ТЕКСТОВЫЙ (.txt) - экспорт
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="filename">ИМЯ ФАЙЛА:</label>
+                <input type="text" name="filename" id="filename" placeholder="games.pkl">
+                <div class="help-text">Оставьте пустым для имени по умолчанию (games.pkl / games.txt)</div>
+            </div>
+            
+            <button type="submit" class="btn btn-success" style="width: 100%;">💾 СОХРАНИТЬ</button>
+        </form>
+    </div>
+    
+    <!-- Загрузка -->
+    <div style="background: rgba(0, 255, 0, 0.05); border: 2px solid #00ff00; border-radius: 10px; padding: 25px;">
+        <h3 style="color: #00ff00; margin-bottom: 20px; font-family: 'Press Start 2P', cursive; font-size: 14px;">📂 ЗАГРУЗИТЬ</h3>
+        <form action="{{ url_for('load_file') }}" method="POST" id="load-form">
+            <div class="form-group">
+                <label>ФОРМАТ:</label>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 10px; cursor: pointer;">
+                        <input type="radio" name="format" value="1" checked style="width: auto; margin-right: 10px;"> 
+                        📦 PICKLE (.pkl) - загрузка данных
+                    </label>
+                    <label style="display: block; cursor: pointer;">
+                        <input type="radio" name="format" value="2" style="width: auto; margin-right: 10px;"> 
+                        📄 ТЕКСТОВЫЙ (.txt) - только просмотр
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="load_filename">ИМЯ ФАЙЛА:</label>
+                <input type="text" name="filename" id="load_filename" placeholder="games.pkl" required>
+                <div class="help-text">Файл должен находиться в папке data/</div>
+            </div>
+            
+            <div class="form-group" id="confirm-group">
+                <label style="display: flex; align-items: center; cursor: pointer;">
+                    <input type="checkbox" name="confirm" value="yes" required id="confirm-checkbox"
+                           style="width: auto; margin-right: 10px;">
+                    <span style="color: #ff4444;">⚠️ Я понимаю, что текущие данные будут потеряны (обязательно)</span>
+                </label>
+                <div class="help-text" style="color: #ff8888; margin-left: 30px;">
+                    * Необходимо отметить для загрузки .pkl файлов
+                </div>
+            </div>
+            
+            <button type="submit" class="btn" style="width: 100%;" id="load-button">📂 ЗАГРУЗИТЬ</button>
+        </form>
+    </div>
+</div>
+
+<h3 style="margin-top: 40px; margin-bottom: 20px; font-family: 'Press Start 2P', cursive; font-size: 16px; color: #00ff00;">
+    📋 СОХРАНЕННЫЕ ФАЙЛЫ (папка data)
+</h3>
+
+{% if files %}
+<table>
+    <thead>
+        <tr>
+            <th>ИМЯ ФАЙЛА</th>
+            <th>ТИП</th>
+            <th>РАЗМЕР</th>
+            <th>ДАТА ИЗМЕНЕНИЯ</th>
+            <th>ДЕЙСТВИЯ</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for file in files %}
+        <tr>
+            <td>
+                {% if file.name.endswith('.pkl') %}
+                    📦 {{ file.name }}
+                {% else %}
+                    📄 {{ file.name }}
+                {% endif %}
+            </td>
+            <td>
+                {% if file.name.endswith('.pkl') %}
+                    <span style="color: #667eea;">PICKLE</span>
+                {% else %}
+                    <span style="color: #48bb78;">ТЕКСТОВЫЙ</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if file.size < 1024 %}
+                    {{ file.size }} B
+                {% elif file.size < 1048576 %}
+                    {{ (file.size / 1024)|round(1) }} KB
+                {% else %}
+                    {{ (file.size / 1048576)|round(1) }} MB
+                {% endif %}
+            </td>
+            <td>{{ file.modified.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>
+                <a href="{{ url_for('delete_file', filename=file.name) }}" 
+                   class="btn btn-danger"
+                   style="padding: 8px 15px; font-size: 10px;"
+                   onclick="return confirm('Удалить файл {{ file.name }}?')">
+                    🗑️ УДАЛИТЬ
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div style="text-align: center; padding: 40px; background: rgba(0,255,0,0.05); border-radius: 10px; margin-top: 20px;">
+    <p style="color: #888888; font-size: 14px;">Нет сохраненных файлов в папке data</p>
+    <p style="color: #888888; margin-top: 10px;">Сохраните библиотеку, чтобы создать первый файл</p>
+</div>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const formatRadios = document.querySelectorAll('input[name="format"]');
+    const confirmGroup = document.getElementById('confirm-group');
+    const confirmCheckbox = document.getElementById('confirm-checkbox');
+    const loadButton = document.getElementById('load-button');
+    const loadForm = document.getElementById('load-form');
+    
+    function updateConfirmRequirement() {
+        const selectedFormat = document.querySelector('input[name="format"]:checked').value;
+        
+        if (selectedFormat === '1') { // Pickle формат
+            confirmCheckbox.required = true;
+            confirmGroup.style.display = 'block';
+            confirmCheckbox.disabled = false;
+        } else { // Текстовый формат
+            confirmCheckbox.required = false;
+            confirmCheckbox.checked = false; // Сбрасываем чекбокс
+            confirmGroup.style.display = 'block';
+            confirmCheckbox.disabled = false;
+            // Можно также скрыть, но лучше показать с пояснением
+        }
+    }
+    
+    // При загрузке страницы
+    updateConfirmRequirement();
+    
+    // При изменении формата
+    formatRadios.forEach(radio => {
+        radio.addEventListener('change', updateConfirmRequirement);
+    });
+    
+    // Дополнительная проверка перед отправкой
+    loadForm.addEventListener('submit', function(e) {
+        const selectedFormat = document.querySelector('input[name="format"]:checked').value;
+        const filename = document.getElementById('load_filename').value.trim();
+        
+        if (!filename) {
+            e.preventDefault();
+            alert('❌ Введите имя файла!');
+            return;
+        }
+        
+        if (selectedFormat === '1' && !confirmCheckbox.checked) {
+            e.preventDefault();
+            alert('❌ Необходимо подтвердить потерю текущих данных!');
+            return;
+        }
+    });
+});
+</script>
+
+<style>
+    input[type="radio"] {
+        width: auto;
+        margin-right: 10px;
+        accent-color: #00ff00;
+    }
+    input[type="checkbox"] {
+        width: auto;
+        margin-right: 10px;
+        accent-color: #ff4444;
+    }
+    td {
+        vertical-align: middle;
+    }
+    #confirm-group {
+        transition: all 0.3s ease;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,70 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+<h2 style="font-family: 'Press Start 2P', cursive; font-size: 20px; color: #00ff00; margin-bottom: 30px;">
+    📚 БИБЛИОТЕКА ИГР
+</h2>
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+    <p style="color: #ffffff;">ВСЕГО ИГР: <strong>{{ count }}</strong></p>
+    <a href="{{ url_for('add_game_select') }}" class="btn btn-success">➕ ДОБАВИТЬ ИГРУ</a>
+</div>
+
+{% if count > 0 %}
+    <div style="display: grid; gap: 20px;">
+        {% for game in games %}
+        <div style="background: rgba(0, 255, 0, 0.05); border: 2px solid #00ff00; border-radius: 10px; padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap;">
+                <h3 style="font-family: 'Press Start 2P', cursive; font-size: 16px; color: #00ff00;">
+                    {{ game.title }}
+                </h3>
+                <span style="background: rgba(0,255,0,0.2); padding: 5px 15px; border-radius: 20px; color: #00ff00; font-size: 12px;">
+                    {% if game.game_type == 'indie' %}🎨 ИНДИ
+                    {% elif game.game_type == 'aaa' %}💰 AAA
+                    {% elif game.game_type == 'mobile' %}📱 МОБИЛЬНАЯ
+                    {% endif %}
+                </span>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                <div><strong>РАЗРАБОТЧИК:</strong> {{ game.developer }}</div>
+                <div><strong>ГОД:</strong> {{ game.year }}</div>
+                <div><strong>ЦЕНА:</strong> ${{ "%.2f"|format(game.price) }}</div>
+                
+                {% if game.game_type == 'indie' %}
+                    <div><strong>КОМАНДА:</strong> {{ game.team_size }} чел.</div>
+                    <div><strong>ДВИЖОК:</strong> {{ game.engine }}</div>
+                {% elif game.game_type == 'aaa' %}
+                    <div><strong>БЮДЖЕТ:</strong> ${{ "%.2f"|format(game.budget) }}M</div>
+                    <div><strong>ПЛАТФОРМЫ:</strong> {{ game.platforms|join(', ') if game.platforms else 'Не указаны' }}</div>
+                {% elif game.game_type == 'mobile' %}
+                    <div><strong>БЕСПЛАТНАЯ:</strong> {{ '✅ ДА' if game.is_free else '❌ НЕТ' }}</div>
+                    <div><strong>МИКРОТРАНЗАКЦИИ:</strong> {{ '✅ ЕСТЬ' if game.microtransactions else '❌ НЕТ' }}</div>
+                {% endif %}
+            </div>
+            
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                <a href="{{ url_for('edit_game', game_id=game.id) }}" class="btn">✏️ РЕДАКТИРОВАТЬ</a>
+                <a href="{{ url_for('delete_game', game_id=game.id) }}" 
+                   class="btn btn-danger"
+                   onclick="return confirm('УДАЛИТЬ ИГРУ {{ game.title }}?')">🗑️ УДАЛИТЬ</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div style="text-align: center; background: rgba(0, 255, 0, 0.05); border: 2px solid #00ff00; border-radius: 10px; padding: 60px 20px; margin-top: 30px;">
+        <div style="font-size: 64px; margin-bottom: 30px;">📭</div>
+        <p style="font-family: 'Press Start 2P', cursive; font-size: 16px; color: #00ff00; margin-bottom: 20px;">
+            БИБЛИОТЕКА ПУСТА
+        </p>
+        <p style="color: #ffffff; margin-bottom: 30px;">
+            ДОБАВЬТЕ ПЕРВУЮ ИГРУ
+        </p>
+        <div style="display: flex; gap: 20px; justify-content: center;">
+            <a href="{{ url_for('add_game_select') }}" class="btn btn-success">➕ ДОБАВИТЬ ИГРУ</a>
+            <a href="{{ url_for('files_list') }}" class="btn">💾 ФАЙЛЫ</a>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
