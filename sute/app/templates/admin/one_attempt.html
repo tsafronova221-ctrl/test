@@ -1,0 +1,116 @@
+{% extends "admin/base.html" %}
+
+{% block styles %}
+<style>
+    h1 {
+        margin-bottom: 1.5rem;
+        color: #2c3e50;
+    }
+
+    .card {
+        background: #fff;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+
+    th, td {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f4f4f4;
+        font-weight: bold;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 8px 14px;
+        border-radius: 4px;
+        text-decoration: none;
+        color: white;
+        font-size: 0.9rem;
+        transition: background-color 0.2s;
+        cursor: pointer;
+    }
+
+    .btn-reset {
+        background-color: #e74c3c;
+    }
+
+    .btn-reset:hover {
+        background-color: #c0392b;
+    }
+
+    .btn-small {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+
+    .attempt-row {
+        background-color: #fafafa;
+    }
+
+    .no-attempts {
+        color: #777;
+        font-style: italic;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2 style="margin-bottom: 1rem;">Попытка студента: {{ student.last_name }} {{ student.first_name }}</h2>
+    <h2 style="margin-bottom: 1rem;">Лабораторная работа: {{ lab.title }}</h2>
+    
+    {% if attempt.finished_at %}
+        <div style="margin-bottom: 1rem; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+            <strong>Статус завершения:</strong> {{ finish_reason }}<br>
+            <strong>Время начала:</strong> {{ attempt.started_at.strftime('%Y-%m-%d %H:%M:%S') }}<br>
+            <strong>Время завершения:</strong> {{ attempt.finished_at.strftime('%Y-%m-%d %H:%M:%S') }}<br>
+            <strong>Результат:</strong> {{ attempt.score }} / {{ results|length }} правильных ответов
+        </div>
+    {% else %}
+        <div style="margin-bottom: 1rem; padding: 10px; background: #fff3cd; border-radius: 5px; color: #856404;">
+            ⚠️ Попытка не завершена
+        </div>
+    {% endif %}
+
+    <table>
+        <thead>
+            <tr>
+                <th>Вопрос</th>
+                <th>Ответ студента</th>
+                <th>Правильный ответ</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for row in results %}
+            <tr {% if row.correct %}style="border-color: #4caf50; background: #e8f5e9"{% else %}style="border-color: #f44336; background: #ffebee"{% endif %}>
+                <td>
+                    <strong>{{ row.question }}</strong>
+                </td>
+
+                <td>
+                    {{ row.answer }}
+                </td>
+
+                <td>
+                    {{ row.true_answer }}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

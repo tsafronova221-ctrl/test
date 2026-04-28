@@ -1,0 +1,223 @@
+﻿<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ lab.title }}</title>
+    <style> body {
+        font-family: sans-serif;
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 0 20px;
+    }
+
+    .alert {
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+
+    .alert-info {
+        background: #e7f3fe;
+        border: 1px solid #b6d4fe;
+        color: #084298;
+    }
+
+    .alert-warning {
+        background: #fff3cd;
+        border: 1px solid #ffecb5;
+        color: #664d03;
+    }
+    
+    .alert-danger {
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+
+    .question-box {
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+    }
+    
+    .timer-box {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #2c3e50;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        font-size: 18px;
+        font-weight: bold;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 1000;
+    }
+    
+    .timer-warning {
+        background: #e74c3c;
+        animation: pulse 1s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.7; }
+        100% { opacity: 1; }
+    }
+ </style>
+</head>
+<body>
+<div id="timerBox" class="timer-box" style="display: none;">
+    ⏱️ Осталось времени: <span id="timerDisplay">00:00</span>
+</div>
+
+<h2>{{ lab.title }}</h2>
+
+{% if lab.is_test %}
+    <div class="alert alert-warning">
+        <strong>Режим контрольной работы!</strong><br>
+        {% if lab.test_duration_minutes > 0 %}
+            Время на выполнение: {{ lab.test_duration_minutes }} мин.
+        {% endif %}
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        Это лабораторная работа. Необходимо ответить на все вопросы.
+    </div>
+{% endif %}
+
+<p>Скачайте файл задания:</p>
+<a href="{{ url_for('files', file_path=lab_file.file_path) }}" download>📥 Скачать файл задания</a>
+<hr>
+
+<form method="post" action="/finish/{{ attempt.id }}" id="quizForm">
+    {% for q in questions %}
+        <div class="question-box">
+            <p><b>Вопрос {{ loop.index }}:</b> {{ q.text }}</p>
+            <input type="text" name="q{{ q.id }}" style="width: 100%; padding: 8px;" placeholder="Ваш ответ"
+                   autocomplete="off" required>
+        </div>
+    {% endfor %}
+    <br>
+    <button type="submit"
+            style="padding: 10px 20px; cursor: pointer; background: #28a745; color: white; border: none; border-radius: 5px; font-size: 16px;">
+        Завершить работу
+    </button>
+</form>
+
+<script>
+// Защита от списывания и таймер
+(function() {
+    const isTest = {{ 'true' if lab.is_test else 'false' }};
+    const testDurationMinutes = {{ lab.test_duration_minutes or 0 }};
+    const finishUrl = '/finish/{{ attempt.id }}';
+    
+    // Таймер обратного отсчета
+    let timerInterval;
+    let totalSeconds;
+    
+    function startTimer() {
+        if (!isTest || testDurationMinutes <= 0) return;
+        
+        document.getElementById('timerBox').style.display = 'block';
+        totalSeconds = testDurationMinutes * 60;
+        updateTimerDisplay();
+        
+        timerInterval = setInterval(function() {
+            totalSeconds--;
+            updateTimerDisplay();
+            
+            // Предупреждение за 1 минуту
+            if (totalSeconds === 60) {
+                document.getElementById('timerBox').classList.add('timer-warning');
+            }
+            
+            // Время вышло
+            if (totalSeconds <= 0) {
+                clearInterval(timerInterval);
+                alert('Время вышло! Тест будет автоматически завершен.');
+                document.getElementById('quizForm').submit();
+            }
+        }, 1000);
+    }
+    
+    function updateTimerDisplay() {
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        document.getElementById('timerDisplay').textContent = 
+            String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+    }
+    
+    // Отслеживание переключения вкладок/окон
+    let tabSwitchCount = 0;
+    let lastVisibilityState = document.visibilityState;
+    
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'hidden' && lastVisibilityState === 'visible') {
+            tabSwitchCount++;
+            console.log('Student switched tabs: ' + tabSwitchCount);
+            
+            // Для КР можно блокировать после первого переключения
+            // Раскомментируйте если нужно строгое правило:
+            /*
+            if (isTest && tabSwitchCount >= 1) {
+                alert('Обнаружено переключение вкладки! Тест будет завершен.');
+                fetch('/api/finish_timeout/' + {{ attempt.id }}, {method: 'POST'})
+                    .then(() => {
+                        window.location.href = '/finish/{{ attempt.id }}?reason=tab_switch';
+                    });
+            }
+            */
+        }
+        lastVisibilityState = document.visibilityState;
+    });
+    
+    // Блокировка контекстного меню (правый клик)
+    document.addEventListener('contextmenu', function(e) {
+        if (isTest) {
+            e.preventDefault();
+            return false;
+        }
+    });
+    
+    // Блокировка копирования текста
+    document.addEventListener('copy', function(e) {
+        if (isTest) {
+            e.preventDefault();
+            return false;
+        }
+    });
+    
+    // Блокировка выделения текста (опционально)
+    // document.addEventListener('selectstart', function(e) {
+    //     if (isTest) {
+    //         e.preventDefault();
+    //         return false;
+    //     }
+    // });
+    
+    // Предотвращение возврата назад
+    history.pushState(null, null, location.href);
+    window.addEventListener('popstate', function(event) {
+        if (isTest) {
+            history.pushState(null, null, location.href);
+            alert('Навигация назад запрещена во время тестирования!');
+        }
+    });
+    
+    // Предупреждение при попытке закрытия вкладки
+    window.addEventListener('beforeunload', function(e) {
+        if (isTest && totalSeconds > 0) {
+            e.preventDefault();
+            e.returnValue = '';
+            return '';
+        }
+    });
+    
+    // Запуск таймера при загрузке страницы
+    startTimer();
+})();
+</script>
+</body>
+</html>
